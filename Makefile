@@ -1,79 +1,95 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    stempels_Makefile                                  :+:      :+:    :+:    #
+#    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: stempels <stempels@student.s19.be>         +#+  +:+       +#+         #
+#    By: user <user@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/14 10:47:36 by stempels          #+#    #+#              #
-#    Updated: 2025/03/20 12:11:32 by stempels         ###   ########.fr        #
+#    Updated: 2025/08/14 16:27:01 by stempels         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
-#
+
 #MAKEFLAGS += --silent
 #
-NAME = push_swap 
+NAME_PROJECT = philosopher 
+NAME = $(NAME_PROJECT)
+debug: NAME = $(addprefix debug_, $(NAME_PROJECT))
 TYPE = EXEC
 #----------------------------COMPILER------------------------------------------#
-CC = clang
-CCFLAGS = -Wall -Wextra -Werror -g
+CC = cc
+debug: CC = gcc 
+CCFLAGS = -Wall -Wextra -Werror
+debug: CCFLAGS = -g3
 CPPFLAGS = $(INC_FLAG)
 #
 #----------------------------LINKER--------------------------------------------#
 #----------------------------DEBUG---------------------------------------------#
-#----------------------------MAIN----------------------------------------------#
+#----------------------------HEADER--------------------------------------------#
+INC_DIR = inc
+INC_FLAG = -I$(INC_DIR)
+#
 #----------------------------SRC-----------------------------------------------#
 SRC_DIR = src
-SRC = $(addprefix src/, $(addsuffix .c, main_push_swap push_swap push_swap_utils push_swap_utils2 manip_push manip_swap manip_rotate manip_rrotate)) 
+#
+SRCS = main philosopher philosopher_utils 
+#
+SRC = $(addprefix $(SRC_DIR)/, $(addsuffix .c, $(SRCS))) 
 #
 #----------------------------OBJ-----------------------------------------------#
 OBJ_DIR = obj
 OBJ = $(patsubst $(SRC_DIR)%.c, $(OBJ_DIR)%.o, $(SRC))
 #
-#----------------------------LIB-----------------------------------------------#
-LIBFT_DIR = libft
-LIBFT = $(LIBFT_DIR)/libft.a
-INC_FLAG = -I $(LIBFT_DIR)/$(INC_DIR)
-#
-#----------------------------HEADER--------------------------------------------#
-INC_DIR = include
-INC_FLAG += -I$(INC_DIR)
+#----------------------------MISC----------------------------------------------#
+DEPENDS = $(patsubst %.c, %.d, $(SRC))
 #
 #----------------------------RULES---------------------------------------------#
+#
 all: $(NAME)
 #
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c Makefile
 	@mkdir -p $(@D)
-	$(CC) $(CCFLAGS) $(CPPFLAGS) -c $< -o $@
+	$(CC) $(CCFLAGS) $(CPPFLAGS) -MMD -MP -c $< -o $@
 #
 lib:	$(LIBFT) 
 $(LIBFT):
 	@$(MAKE) -C $(LIBFT_DIR)
 #
-$(NAME): $(OBJ) $(LIBFT)
-	$(CC) $(CCFLAGS) $(OBJ) -L$(LIBFT_DIR) -lft -o $@
+$(NAME): $(OBJ) 
+	$(CC) $(CCFLAGS) $(OBJ) -o $(NAME)
 	@echo "$(NAME) $(GREEN)created !$(NC)"
+
+run: $(NAME)
+	@./$(NAME)
+#
+leak: debug
+	@valgrind --leak-check=full --show-leak-kinds=all --trace-children=yes --track-origins=yes --track-fds=yes --suppressions=./valgrind.supp ./debug_$(NAME_PROJECT)
+#
+vgdb: debug
+	@valgrind --vgdb-error=0 --leak-check=full --show-leak-kinds=all --track-fds=yes --suppressions=./valgrind.supp ./debug_$(NAME_PROJECT)
 #
 clean:
-	rm -rf $(OBJ_DIR)
+	rm -rf $(OBJ_DIR) $(DEPENDS)
 	@echo "$(NAME) $(GREEN)$@ed !$(NC)"
-#
-libclean:
-	$(MAKE) clean -C $(LIBFT_DIR)	
-	rm -rf $(LIBFT)
 #
 fclean: clean
 	rm -rf $(NAME)
+	rm -rf $(addprefix debug_, $(NAME))
 	@echo "$(NAME) $(GREEN)$@ed !$(NC)"
 #
-ffclean: fclean libclean
+ffclean: fclean
 #
 re: ffclean all
 #
-.PHONY: all clean libclean fclean ffclean re design
+debug: $(OBJ) 
+	$(CC) $(CCFLAGS) $(OBJ) -o $(NAME)
+	@echo "$(NAME) created !"
+#
+-include $(DEPENDS)
+#
+.PHONY: all clean libclean fclean ffclean re
 #----------------------------TEXT----------------------------------------------#
-GREEN=\033[0;32m
-NC=\033[0m
+
 #
 #----------------------------MISC----------------------------------------------#
 #
