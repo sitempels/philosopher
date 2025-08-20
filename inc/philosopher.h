@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:22:36 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/14 16:22:49 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/20 16:08:24 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,6 @@
 /*________________________________MACRO_______________________________________*/
 /**/
 /*________________________________STRUCT______________________________________*/
-typedef struct	s_timeval
-{
-	time_t		tv_sec;
-	suseconds_t	tv_usec;
-}				t_timeval;
 /*
 typedef struct	s_msg
 {
@@ -40,25 +35,26 @@ typedef struct	s_msg
 typedef struct	s_philo
 {
 	int				philo_id;
-	time_t			*time;
-	t_timeval		start;
-	pthread_mutex_t	print;
+	int				*start;
+	long int		*time;
+	pthread_mutex_t	*print;
 	
 }				t_philo;
 
 typedef struct	s_ctrl
 {
-	t_timeval		start;
-	int				nbr_philo;
-	int				time_start;
-	int				time_die;
-	int				time_eat;
-	int				time_sleep;
-	int				nbr_dinner;
-	t_philo			**philo;
-	pthread_mutex_t	print;
-	pthread_mutex_t	**forks;
-}				t_ctrl;
+	struct timeval		time;
+	int					start;
+	int					nbr_philo;
+	int					time_start;
+	int					time_die;
+	int					time_eat;
+	int					time_sleep;
+	int					nbr_dinner;
+	t_philo				**philo;
+	pthread_mutex_t		*print;
+	pthread_mutex_t		**forks;
+}						t_ctrl;
 
 /**/
 /*________________________________PHILO______________________________________*/

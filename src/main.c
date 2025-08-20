@@ -6,7 +6,7 @@
 /*   By: stempels <stempels@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 07:21:34 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/14 16:29:05 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/20 16:10:35 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int	main(int argc, char **argv)
 		return (write(2, "Error: wrong number of arguments\n", 32));
 	if (init_ctrl_struct(&ctrl, argc, argv))
 		return (write(2, "Error: wrong argument value", 27), 1);
-	printf("nbr_philo: %d   die: %d   eat: %d   sleep: %d   nbr_dinner: %d\n", ctrl.nbr_philo, ctrl.time_eat, ctrl.time_eat, ctrl.time_sleep, ctrl.nbr_dinner);
+	printf("nbr_philo: %d   die: %d   eat: %d   sleep: %d   nbr_dinner: %d\n", ctrl.nbr_philo, ctrl.time_die, ctrl.time_eat, ctrl.time_sleep, ctrl.nbr_dinner);
 	if (set_table(&ctrl))
 		return (clean_mutex_pos(&ctrl, ctrl.nbr_philo + 1), free(ctrl.forks), 1);
 	if (philosopher(&ctrl))
@@ -36,7 +36,7 @@ int	main(int argc, char **argv)
 
 static int	init_ctrl_struct(t_ctrl *ctrl, int argc, char **argv)
 {
-	ctrl->start.tv_sec = 0;
+	ctrl->start = 0;
 	if (handle_arg(&ctrl->nbr_philo, argv[1]))
 		return (1);
 	if (handle_arg(&ctrl->time_die, argv[2]))
@@ -54,7 +54,10 @@ static int	init_ctrl_struct(t_ctrl *ctrl, int argc, char **argv)
 	ctrl->philo = (t_philo **)malloc(sizeof(t_philo *) * ctrl->nbr_philo);
 	if (!ctrl->philo)
 		return (1);
-	if (pthread_mutex_init(&ctrl->print, NULL))
+	ctrl->print = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+	if (!ctrl->print)
+		return (1);
+	if (pthread_mutex_init(ctrl->print, NULL))
 		return (1);
 	return (0);
 }

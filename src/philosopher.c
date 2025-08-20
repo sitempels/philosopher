@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 12:56:55 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/14 16:35:21 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/20 16:39:38 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ int	philosopher(t_ctrl *ctrl)
 	int			i;
 	pthread_t	**thread_id;
 
-	ctrl->start.tv_sec = 0;
+	ctrl->start = 0;
 	thread_id = (pthread_t **) malloc(sizeof(pthread_t *) * (ctrl->nbr_philo + 1));
 	if (!thread_id)
 		return (1);
@@ -31,17 +31,22 @@ int	philosopher(t_ctrl *ctrl)
 	while (i < ctrl->nbr_philo)
 	{
 		thread_id[i] = (pthread_t *) malloc(sizeof(pthread_t));
-		ctrl->philo[i] = invite_philo(ctrl, i);
+		ctrl->philo[i] = invite_philo(ctrl, i + 1);
 		if (!ctrl->philo[i])
 			return (1);
-		if (pthread_create(thread_id[i], NULL, philo_routine, &ctrl->philo[i]))
+		if (pthread_create(thread_id[i], NULL, philo_routine, ctrl->philo[i]))
 			return (1);
 		i++;
 	}
 //	if (gettimeofday(ctrl->time_start, NULL))
 //		return (1);
-	ctrl->start.tv_sec = 1;
-	pthread_join(*thread_id[0], NULL);
+	ctrl->start = 1;
+	i = 0;
+	while (thread_id[i])
+	{
+		pthread_join(*(thread_id[i]), NULL);
+		i++;
+	}
 	return (0);
 }
 
@@ -50,13 +55,13 @@ static t_philo	*invite_philo(t_ctrl *ctrl, int philo_id)
 	t_philo	*philo;
 
 
-	philo = (t_philo *) malloc(sizeof(t_philo) * 1);
+	philo = (t_philo *) malloc(sizeof(t_philo));
 	if (!philo)
 		return (NULL);
-	philo->start = ctrl->start;
+//	philo->start = ctrl->start;
 	philo->philo_id = philo_id;
 	philo->print = ctrl->print;
-	philo->time = &ctrl->start.tv_sec;
+	philo->start = &ctrl->start;
 	return (philo);	
 }
 
@@ -69,13 +74,13 @@ static void	*philo_routine(void *arg)
 	t_philo	*philo;
 
 	philo = (t_philo *)arg;
-	while (philo->time == 0)
+	while (*philo->start == 0)
 		usleep(50);
 //	get_fork(ctrl, fork, fork_name);
-	pthread_mutex_lock(&philo->print);
-	printf("philo_id: %d\n", philo->philo_id);
-	pthread_mutex_unlock(&philo->print);
-	while (philo->time == 0)
+	pthread_mutex_lock(philo->print);
+	printf("%d	philo_id: %d\n", *philo->start, philo->philo_id);
+	pthread_mutex_unlock(philo->print);
+	while (*philo->start != 0)
 		usleep(50);
 //	last_meal = ctrl->start->tv_sec;
 	return (NULL);
