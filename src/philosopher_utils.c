@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 09:36:22 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/14 13:58:56 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/21 15:50:18 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static int	ft_isspace(char c);
 
-int	ft_atoi(const char *str)
+long int	ft_atol(const char *str)
 {
 	size_t			i;
 	int				sign;
@@ -33,16 +33,16 @@ int	ft_atoi(const char *str)
 		res = res + (str[i] - 48);
 		if ('0' <= str[i + 1] && str[i + 1] <= '9')
 			res = res * 10;
-		if (res > INT_MAX && sign == 1)
+		if (res > LONG_MAX && sign == 1)
 			return (-1);
-		if ((-1) * res < INT_MIN && sign == -1)
+		if ((-1) * res < LONG_MIN && sign == -1)
 			return (0);
 		i++;
 	}
 	return (sign * res);
 }
 
-int	check_ft_atoi(int res, char *str)
+int	check_ft_atol(long int res, char *str)
 {
 	int	i;
 

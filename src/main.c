@@ -6,14 +6,14 @@
 /*   By: stempels <stempels@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 07:21:34 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/20 16:10:35 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/21 15:52:41 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosopher.h"
 
 static int	init_ctrl_struct(t_ctrl *ctrl, int argc, char **argv);
-static int	handle_arg(int *target, char *content);
+static int	handle_arg(long int *target, char *content);
 static int	set_table(t_ctrl *ctrl);
 
 int	main(int argc, char **argv)
@@ -24,7 +24,7 @@ int	main(int argc, char **argv)
 		return (write(2, "Error: wrong number of arguments\n", 32));
 	if (init_ctrl_struct(&ctrl, argc, argv))
 		return (write(2, "Error: wrong argument value", 27), 1);
-	printf("nbr_philo: %d   die: %d   eat: %d   sleep: %d   nbr_dinner: %d\n", ctrl.nbr_philo, ctrl.time_die, ctrl.time_eat, ctrl.time_sleep, ctrl.nbr_dinner);
+	printf("nbr_philo: %d   die: %ld   eat: %ld   sleep: %ld   nbr_dinner: %d\n", ctrl.nbr_philo, ctrl.time_die, ctrl.time_eat, ctrl.time_sleep, ctrl.nbr_dinner);
 	if (set_table(&ctrl))
 		return (clean_mutex_pos(&ctrl, ctrl.nbr_philo + 1), free(ctrl.forks), 1);
 	if (philosopher(&ctrl))
@@ -37,7 +37,7 @@ int	main(int argc, char **argv)
 static int	init_ctrl_struct(t_ctrl *ctrl, int argc, char **argv)
 {
 	ctrl->start = 0;
-	if (handle_arg(&ctrl->nbr_philo, argv[1]))
+	if (handle_arg((long int *)&ctrl->nbr_philo, argv[1]))
 		return (1);
 	if (handle_arg(&ctrl->time_die, argv[2]))
 		return (1);
@@ -48,7 +48,7 @@ static int	init_ctrl_struct(t_ctrl *ctrl, int argc, char **argv)
 	ctrl->nbr_dinner = -1;
 	if (argc == 6)
 	{
-		if (handle_arg(&ctrl->nbr_dinner, argv[5]))
+		if (handle_arg((long int *)&ctrl->nbr_dinner, argv[5]))
 			return (1);
 	}
 	ctrl->philo = (t_philo **)malloc(sizeof(t_philo *) * ctrl->nbr_philo);
@@ -83,12 +83,12 @@ static int	set_table(t_ctrl *ctrl)
 	return (0);
 }
 
-static int	handle_arg(int *target, char *content)
+static int	handle_arg(long int *target, char *content)
 {
-	int	i;
+	long int	i;
 
-	i = ft_atoi(content);
-	if (!check_ft_atoi(i, content))
+	i = ft_atol(content);
+	if (!check_ft_atol(i, content))
 		return (1);
 	*target = i;
 	return (0);

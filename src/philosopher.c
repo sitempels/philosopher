@@ -6,13 +6,14 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 12:56:55 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/20 16:39:38 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/21 16:26:05 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosopher.h"
 
-//static void	get_fork(t_ctrl *ctrl, pthread_mutex *fork[2], char *fork_name[2]);
+int	actual_time(long int start_time, long int *time);
+int	print_msg(long int time, char *msg, t_philo *philo);
 //static time_t	get_time(int time_start);
 static t_philo	*invite_philo(t_ctrl *ctrl, int philo_id);
 void static		*philo_routine(void *arg);
@@ -23,6 +24,7 @@ int	philosopher(t_ctrl *ctrl)
 	pthread_t	**thread_id;
 
 	ctrl->start = 0;
+	ctrl->time_start = 0;
 	thread_id = (pthread_t **) malloc(sizeof(pthread_t *) * (ctrl->nbr_philo + 1));
 	if (!thread_id)
 		return (1);
@@ -36,11 +38,15 @@ int	philosopher(t_ctrl *ctrl)
 			return (1);
 		if (pthread_create(thread_id[i], NULL, philo_routine, ctrl->philo[i]))
 			return (1);
+		printf("%d	philo_id: %d\n", ctrl->start, ctrl->philo[i]->philo_id);
+		printf("	fork_1: %p	fork_2: %p\n", ctrl->philo[i]->forks[0], ctrl->philo[i]->forks[1]);
 		i++;
 	}
-//	if (gettimeofday(ctrl->time_start, NULL))
-//		return (1);
+	if (actual_time(0, &ctrl->time_start))
+		return (1);
 	ctrl->start = 1;
+	usleep(5000000);
+	ctrl->start = 0;
 	i = 0;
 	while (thread_id[i])
 	{
@@ -58,49 +64,52 @@ static t_philo	*invite_philo(t_ctrl *ctrl, int philo_id)
 	philo = (t_philo *) malloc(sizeof(t_philo));
 	if (!philo)
 		return (NULL);
-//	philo->start = ctrl->start;
 	philo->philo_id = philo_id;
-	philo->print = ctrl->print;
-	philo->start = &ctrl->start;
+	philo->ctrl = ctrl;
+	philo->forks[philo_id % 2] = ctrl->forks[philo_id % ctrl->nbr_philo]; 
+	philo->forks[(philo_id + 1) % 2] = ctrl->forks[philo_id - 1]; 
 	return (philo);	
 }
 
 static void	*philo_routine(void *arg)
 {
-//	int				philo_id;
-//	char			*fork_name[2];
 //	t_time			last_meal;
-//	pthread_mutex	*fork[2];
+	long int	time;
 	t_philo	*philo;
 
+	time = 0;
 	philo = (t_philo *)arg;
-	while (*philo->start == 0)
-		usleep(50);
-//	get_fork(ctrl, fork, fork_name);
-	pthread_mutex_lock(philo->print);
-	printf("%d	philo_id: %d\n", *philo->start, philo->philo_id);
-	pthread_mutex_unlock(philo->print);
-	while (*philo->start != 0)
-		usleep(50);
-//	last_meal = ctrl->start->tv_sec;
+	while (philo->ctrl->start == 0)
+		usleep(10);
+	usleep(2000000);
+	while (philo->ctrl->start != 0)
+	{
+		if (actual_time(philo->ctrl->time_start, &time))
+			return (NULL);
+		print_msg(time, "Alive !", philo);
+	}
 	return (NULL);
 }
 
-/*
-static void	get_fork(t_ctrl *ctrl, pthread_mutex *fork[2], char *fork_name[2])
+int	print_msg(long int time, char *msg, t_philo *philo)
 {
-	if (ctrt->philo_id == 0)
-	{
-		fork[0] = ctrl->forks[ctr->philo_id]; 
-		fork[1] = ctrl->forks[ctr->nbr_philo - 1]; 
-	}
-	else
-	{
-		fork[ctrl->philo_id % 2] = ctrl->forks[ctr->philo_id]; 
-		fork[(ctrl->philo_id + 1) % 2] = ctrl->forks[ctr->philo_id - 1]; 
-	}
+		pthread_mutex_lock(philo->ctrl->print);
+		printf("=== %ld ===	philo %d: Alive !\n", time, philo->philo_id);
+		pthread_mutex_unlock(philo->ctrl->print);
+		usleep(10);
 }
-*/
+
+int	actual_time(long int start_time, long int *time)
+{
+	struct timeval	tmp;
+
+	if (gettimeofday(&tmp, NULL))
+		return (1);
+	else
+		*time = ((tmp.tv_sec * 1000000 + tmp.tv_usec) / 1000) - start_time;
+	return (0);
+}
+
 /*
 static void	print_msg(t_ctrl *ctrl, time_t time, int philo_id, char *msg)
 {
