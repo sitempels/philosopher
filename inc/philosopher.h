@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:22:36 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/21 16:24:31 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/22 15:10:00 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@ typedef struct	s_msg
 typedef struct	s_philo
 {
 	int				philo_id;
+	int				dinner;
+	long int		last_meal;
 	struct s_ctrl	*ctrl;
 	pthread_mutex_t	*forks[2];
 	
