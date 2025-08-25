@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:22:36 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/22 15:10:00 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/25 09:45:18 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,11 +58,13 @@ typedef struct	s_ctrl
 
 /**/
 /*________________________________PHILO______________________________________*/
-int		philosopher(t_ctrl *ctrl);
+int				philosopher(t_ctrl *ctrl);
 //void	*philo_routine(void *arg);
 /**/
 /*________________________________UTILS______________________________________*/
 int				check_ft_atol(long int res, char *str);
 void			clean_mutex_pos(t_ctrl *ctrl, int pos);
 long int		ft_atol(const char *str);
+int				print_msg(char *msg, t_philo *philo);
+long int	get_time(long int start_time);
 #endif

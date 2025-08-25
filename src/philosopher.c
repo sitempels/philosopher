@@ -6,18 +6,16 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 12:56:55 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/22 16:59:27 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/25 17:25:52 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosopher.h"
 
-long int	get_time(long int start_time);
-int	print_msg(long int time, char *msg, t_philo *philo);
-//static time_t	get_time(int time_start);
 static t_philo	*invite_philo(t_ctrl *ctrl, int philo_id);
 void static		*philo_routine(void *arg);
-int	check_dead(t_philo *philo);
+int	check_dead(t_ctrl *ctrl, t_philo *philo);
+int	check_eaten(t_ctrl *ctrl, t_philo **philo);
 int	eating(t_ctrl *ctrl, t_philo *philo);
 
 int	philosopher(t_ctrl *ctrl)
@@ -25,7 +23,6 @@ int	philosopher(t_ctrl *ctrl)
 	int			i;
 	pthread_t	**thread_id;
 
-	ctrl->start = 0;
 	ctrl->time_start = 0;
 	thread_id = (pthread_t **) malloc(sizeof(pthread_t *) * (ctrl->nbr_philo + 1));
 	if (!thread_id)
@@ -44,19 +41,29 @@ int	philosopher(t_ctrl *ctrl)
 		printf("	fork_1: %p	fork_2: %p\n", ctrl->philo[i]->forks[0], ctrl->philo[i]->forks[1]);
 		i++;
 	}
-	printf("%ld	All set, starting simulation !\n", ctrl->time_start);
 	ctrl->time_start = get_time(0);
+	printf("%ld	All set, starting simulation !\n", ctrl->time_start);
+	ctrl->start = 1;
 	if (ctrl->time_start < 0)
 		return (1);
-	ctrl->start = 1;
+/*	i = 0;
+	while (i < ctrl->nbr_philo)
+	{
+		pthread_mutex_unlock(ctrl->forks[i]);
+		i++;
+	}*/
 	i = 0;
 	while (ctrl->start == 1)
 	{
-		if (check_dead(ctrl->philo[i]))
+		if (check_dead(ctrl, ctrl->philo[i]))
 			break ;
+		if (ctrl->nbr_dinner > 0 && check_eaten(ctrl, ctrl->philo))
+			break ;
+		i++;
 		if (i == ctrl->nbr_philo - 1)	
 			i = 0;
 	}
+	pthread_mutex_unlock(ctrl->print);
 	i = 0;
 	while (thread_id[i])
 	{
@@ -85,8 +92,7 @@ static t_philo	*invite_philo(t_ctrl *ctrl, int philo_id)
 
 static void	*philo_routine(void *arg)
 {
-	int			status;
-	long int	new_time;
+	long int	time;
 	t_ctrl		*ctrl;
 	t_philo		*philo;
 
@@ -97,80 +103,90 @@ static void	*philo_routine(void *arg)
 	philo->last_meal = get_time(ctrl->time_start);
 	if (philo->last_meal < 0)
 		return (NULL);
+	if (eating(ctrl, philo))
+		return (NULL); //write a error
+	print_msg("is sleeping", philo);
+	usleep(1000 * philo->ctrl->time_sleep);
+	print_msg("is thinking", philo);
 	while (ctrl->start != 0)
 	{
-		status = eating(ctrl, philo);
-		if (status < 0)
+		time = get_time(ctrl->time_start);
+		if (time < 0)
 			return (NULL);
-		else if (status == 1)
-		{
-			new_time = get_time(philo->ctrl->time_start);
-			print_msg(new_time, "is sleeping !", philo);
-			usleep(1000 * philo->ctrl->time_sleep);
-			new_time = get_time(philo->ctrl->time_start);
-			print_msg(new_time, "is thinking !", philo);
-		}
+		if (eating(ctrl, philo))
+				return (NULL);
+		print_msg("is sleeping", philo);
+		usleep(1000 * philo->ctrl->time_sleep);
+		print_msg("is thinking", philo);
+		usleep(ctrl->time_die - ctrl->time_eat - ctrl->time_sleep - 10);
 	}
 	return (NULL);
 }
 
 int	eating(t_ctrl *ctrl, t_philo *philo)
 {
+	if (pthread_mutex_lock(philo->forks[0]))
+		return (1);
+	if (print_msg("took a fork", philo))
+		return (1);
+	if (pthread_mutex_lock(philo->forks[1]))
+		return (1);
+	philo->last_meal = get_time(ctrl->time_start);
+	print_msg("took is second fork and is eating !", philo);
+	if (philo->dinner > 0)
+		philo->dinner--;
+	usleep(1000 * philo->ctrl->time_eat);
+	if (pthread_mutex_unlock(philo->forks[0]))
+		return (1);
+	print_msg("let go of the fork", philo);
+	if (pthread_mutex_unlock(philo->forks[1]))
+		return (1);
+	print_msg("let go of the second fork", philo);
+	return (0);
+}
+
+int	check_dead(t_ctrl *ctrl, t_philo *philo)
+{
 	long int	time;
 
 	time = get_time(ctrl->time_start);
 	if (time < 0)
 		return (-1);
-	if ((time - philo->last_meal) * 100 / (ctrl->time_die - (ctrl->time_eat + ctrl->time_sleep)) > 50)
+	if (time - philo->last_meal >= ctrl->time_die)
 	{
-		pthread_mutex_lock(philo->forks[0]);
-		time = get_time(philo->ctrl->time_start);
-		print_msg(time, "took a fork", philo);
-		pthread_mutex_lock(philo->forks[1]);
-		philo->last_meal = get_time(philo->ctrl->time_start);
-		print_msg(philo->last_meal, "took is second fork and is eating !", philo);
-		usleep(1000 * philo->ctrl->time_eat);
-		pthread_mutex_unlock(philo->forks[0]);
-		time = get_time(philo->ctrl->time_start);
-		print_msg(time, "let go of the fork", philo);
-		pthread_mutex_unlock(philo->forks[1]);
-		print_msg(time, "let go of the second fork", philo);
+		pthread_mutex_lock(ctrl->print);
+		ctrl->start = 0;
+		printf("=== %ld ===	philo %d: died !\n", time, philo->philo_id);
 		return (1);
 	}
 	return (0);
 }
 
-int	check_dead(t_philo *philo)
+int	check_eaten(t_ctrl *ctrl, t_philo **philo)
 {
+	int	i;
+	int	eaten;
 	long int	actual_time;
 
-	actual_time = get_time(philo->ctrl->time_start);
-	if (actual_time < 0)
-		return (-1);
-	if (actual_time - philo->last_meal >= philo->ctrl->time_die)
+	i = 0;
+	eaten = 0;
+	while (i < ctrl->nbr_philo)
 	{
-		print_msg(actual_time, "died !", philo);
-		philo->ctrl->start = 0;
+		if (philo[i]->dinner == 0)
+			eaten++;
+		i++;
+	}
+	if (eaten == ctrl->nbr_philo)
+	{
+		actual_time = get_time(ctrl->time_start);
+		if (actual_time < 0)
+			return (-1);
+		pthread_mutex_lock(ctrl->print);
+		ctrl->start = 0;
+		printf("=== %ld ===	Everybody has eaten !\n", actual_time);
 		return (1);
 	}
 	return (0);
-}
-
-int	print_msg(long int time, char *msg, t_philo *philo)
-{
-		pthread_mutex_lock(philo->ctrl->print);
-		if (philo->ctrl->start == 1)
-			printf("=== %ld ===	philo %d: %s !\n", time, philo->philo_id, msg);
-		pthread_mutex_unlock(philo->ctrl->print);
-}
-
-long int	get_time(long int start_time)
-{
-	struct timeval	tmp;
-
-	if (gettimeofday(&tmp, NULL))
-		return (-1);
-	return (((tmp.tv_sec * 1000000 + tmp.tv_usec) / 1000) - start_time);
 }
 
 /*

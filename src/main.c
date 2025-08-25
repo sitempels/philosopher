@@ -6,7 +6,7 @@
 /*   By: stempels <stempels@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 07:21:34 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/21 15:52:41 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/25 17:54:39 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,13 @@ int	main(int argc, char **argv)
 	if (init_ctrl_struct(&ctrl, argc, argv))
 		return (write(2, "Error: wrong argument value", 27), 1);
 	printf("nbr_philo: %d   die: %ld   eat: %ld   sleep: %ld   nbr_dinner: %d\n", ctrl.nbr_philo, ctrl.time_die, ctrl.time_eat, ctrl.time_sleep, ctrl.nbr_dinner);
+	if (ctrl.nbr_philo == 1)
+	{
+		printf("=== 0 ===	philo 1: took a fork !\n");
+		usleep(ctrl.time_die);
+		printf("=== %ld ===	philo 1: died !\n", ctrl.time_die);
+		return (0);
+	}
 	if (set_table(&ctrl))
 		return (clean_mutex_pos(&ctrl, ctrl.nbr_philo + 1), free(ctrl.forks), 1);
 	if (philosopher(&ctrl))
@@ -78,6 +85,7 @@ static int	set_table(t_ctrl *ctrl)
 		ctrl->forks[i] = (pthread_mutex_t *) malloc(sizeof(pthread_mutex_t));
 		if (pthread_mutex_init(ctrl->forks[i], NULL))
 			return (clean_mutex_pos(ctrl, i), 1);
+//		pthread_mutex_lock(ctrl->forks[i]);
 		i++;
 	}
 	return (0);

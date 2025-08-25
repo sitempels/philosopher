@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 09:36:22 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/21 15:50:18 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/25 17:11:05 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,4 +83,27 @@ void	clean_mutex_pos(t_ctrl *ctrl, int pos)
 //		ctrl->forks[i] = NULL;
 //		i++;
 //	}
+}
+
+int	print_msg(char *msg, t_philo *philo)
+{
+	long int	time;
+
+	if (pthread_mutex_lock(philo->ctrl->print))
+		return (1);
+	time = get_time(philo->ctrl->time_start);
+	if (philo->ctrl->start == 1)
+		printf("=== %ld ===	philo %d: %s !\n", time, philo->philo_id, msg);
+	if (pthread_mutex_unlock(philo->ctrl->print))
+		return (1);
+	return (0);
+}
+
+long int	get_time(long int start_time)
+{
+	struct timeval	tmp;
+
+	if (gettimeofday(&tmp, NULL))
+		return (-1);
+	return (((tmp.tv_sec * 1000000 + tmp.tv_usec) / 1000) - start_time);
 }

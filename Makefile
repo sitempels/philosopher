@@ -6,7 +6,7 @@
 #    By: user <user@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/14 10:47:36 by stempels          #+#    #+#              #
-#    Updated: 2025/08/14 16:27:01 by stempels         ###   ########.fr        #
+#    Updated: 2025/08/25 18:01:45 by stempels         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -50,10 +50,6 @@ all: $(NAME)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c Makefile
 	@mkdir -p $(@D)
 	$(CC) $(CCFLAGS) $(CPPFLAGS) -MMD -MP -c $< -o $@
-#
-lib:	$(LIBFT) 
-$(LIBFT):
-	@$(MAKE) -C $(LIBFT_DIR)
 #
 $(NAME): $(OBJ) 
 	$(CC) $(CCFLAGS) $(OBJ) -o $(NAME)
