@@ -6,13 +6,13 @@
 #    By: user <user@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/14 10:47:36 by stempels          #+#    #+#              #
-#    Updated: 2025/08/25 18:01:45 by stempels         ###   ########.fr        #
+#    Updated: 2025/08/26 16:38:05 by stempels         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 #MAKEFLAGS += --silent
 #
-NAME_PROJECT = philosopher 
+NAME_PROJECT = philo 
 NAME = $(NAME_PROJECT)
 debug: NAME = $(addprefix debug_, $(NAME_PROJECT))
 TYPE = EXEC
@@ -32,7 +32,7 @@ INC_FLAG = -I$(INC_DIR)
 #----------------------------SRC-----------------------------------------------#
 SRC_DIR = src
 #
-SRCS = main philosopher philosopher_utils 
+SRCS = main philosopher philosopher_routine philosopher_utils 
 #
 SRC = $(addprefix $(SRC_DIR)/, $(addsuffix .c, $(SRCS))) 
 #
@@ -59,10 +59,10 @@ run: $(NAME)
 	@./$(NAME)
 #
 leak: debug
-	@valgrind --leak-check=full --show-leak-kinds=all --trace-children=yes --track-origins=yes --track-fds=yes --suppressions=./valgrind.supp ./debug_$(NAME_PROJECT)
+	@valgrind --leak-check=full --show-leak-kinds=all --trace-children=yes --track-origins=yes --track-fds=yes ./debug_$(NAME_PROJECT)
 #
 vgdb: debug
-	@valgrind --vgdb-error=0 --leak-check=full --show-leak-kinds=all --track-fds=yes --suppressions=./valgrind.supp ./debug_$(NAME_PROJECT)
+	@valgrind --vgdb-error=0 --leak-check=full --show-leak-kinds=all --track-fds=yes ./debug_$(NAME_PROJECT)
 #
 clean:
 	rm -rf $(OBJ_DIR) $(DEPENDS)

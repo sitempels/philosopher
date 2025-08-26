@@ -6,7 +6,7 @@
 /*   By: stempels <stempels@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 07:21:34 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/25 17:54:39 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/26 16:51:19 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,16 @@
 static int	init_ctrl_struct(t_ctrl *ctrl, int argc, char **argv);
 static int	handle_arg(long int *target, char *content);
 static int	set_table(t_ctrl *ctrl);
+static int	init_flow_mutex(t_ctrl *ctrl);
 
 int	main(int argc, char **argv)
 {
 	t_ctrl	ctrl;
 
 	if (argc < 5 || argc > 6)
-		return (write(2, "Error: wrong number of arguments\n", 32));
+		return (write(2, "Error: wrong number of arguments\n", 32), 1);
 	if (init_ctrl_struct(&ctrl, argc, argv))
 		return (write(2, "Error: wrong argument value", 27), 1);
-	printf("nbr_philo: %d   die: %ld   eat: %ld   sleep: %ld   nbr_dinner: %d\n", ctrl.nbr_philo, ctrl.time_die, ctrl.time_eat, ctrl.time_sleep, ctrl.nbr_dinner);
 	if (ctrl.nbr_philo == 1)
 	{
 		printf("=== 0 ===	philo 1: took a fork !\n");
@@ -33,17 +33,19 @@ int	main(int argc, char **argv)
 		return (0);
 	}
 	if (set_table(&ctrl))
-		return (clean_mutex_pos(&ctrl, ctrl.nbr_philo + 1), free(ctrl.forks), 1);
+		return (1);
 	if (philosopher(&ctrl))
-		return (clean_mutex_pos(&ctrl, ctrl.nbr_philo + 1), free(ctrl.forks), 1);
-	clean_mutex_pos(&ctrl, ctrl.nbr_philo + 1);
-	free(ctrl.forks);
+	{
+		ft_free_array((void ***)&ctrl.philo);
+		return (clean_mutex(&ctrl, 0), 1);
+	}
+	ft_free_array((void ***)&ctrl.philo);
+	clean_mutex(&ctrl, 0);
 	return (0);
 }
 
 static int	init_ctrl_struct(t_ctrl *ctrl, int argc, char **argv)
 {
-	ctrl->start = 0;
 	if (handle_arg((long int *)&ctrl->nbr_philo, argv[1]))
 		return (1);
 	if (handle_arg(&ctrl->time_die, argv[2]))
@@ -54,38 +56,57 @@ static int	init_ctrl_struct(t_ctrl *ctrl, int argc, char **argv)
 		return (1);
 	ctrl->nbr_dinner = -1;
 	if (argc == 6)
-	{
 		if (handle_arg((long int *)&ctrl->nbr_dinner, argv[5]))
 			return (1);
-	}
-	ctrl->philo = (t_philo **)malloc(sizeof(t_philo *) * ctrl->nbr_philo);
-	if (!ctrl->philo)
+	ctrl->philo = NULL;
+	ctrl->start = 1;
+	if (init_flow_mutex(ctrl))
 		return (1);
+	return (0);
+}
+
+static int	init_flow_mutex(t_ctrl *ctrl)
+{
+	ctrl->m_start = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+	if (!ctrl->m_start)
+		return (1);
+	if (pthread_mutex_init(ctrl->m_start, NULL))
+		return (free(ctrl->m_start), 1);
 	ctrl->print = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
 	if (!ctrl->print)
+	{
+		pthread_mutex_destroy(ctrl->m_start);
+		free(ctrl->m_start);
 		return (1);
+	}
 	if (pthread_mutex_init(ctrl->print, NULL))
+	{
+		free(ctrl->print);
+		pthread_mutex_destroy(ctrl->m_start);
+		free(ctrl->m_start);
 		return (1);
+	}
 	return (0);
 }
 
 static int	set_table(t_ctrl *ctrl)
 {
-	int	i;
+	int				i;
 	pthread_mutex_t	**tmp;
 
-	tmp = (pthread_mutex_t **) malloc(sizeof(pthread_mutex_t *) * (ctrl->nbr_philo + 1));
+	tmp = malloc(sizeof(pthread_mutex_t *) * (ctrl->nbr_philo + 1));
 	ctrl->forks = tmp;
 	if (!ctrl->forks)
 		return (1);
-	ctrl->forks[ctrl->nbr_philo] = NULL;
+	memset(ctrl->forks, 0, sizeof(pthread_mutex_t *) * (ctrl->nbr_philo + 1));
 	i = 0;
 	while (i < ctrl->nbr_philo)
 	{
 		ctrl->forks[i] = (pthread_mutex_t *) malloc(sizeof(pthread_mutex_t));
+		if (!ctrl->forks[i])
+			return (clean_mutex(ctrl, 0), 1);
 		if (pthread_mutex_init(ctrl->forks[i], NULL))
-			return (clean_mutex_pos(ctrl, i), 1);
-//		pthread_mutex_lock(ctrl->forks[i]);
+			return (clean_mutex(ctrl, i), 1);
 		i++;
 	}
 	return (0);

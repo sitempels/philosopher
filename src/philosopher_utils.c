@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 09:36:22 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/25 17:11:05 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/26 16:36:09 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,45 +65,44 @@ static int	ft_isspace(char c)
 	return (0);
 }
 
-void	clean_mutex_pos(t_ctrl *ctrl, int pos)
+void	clean_mutex(t_ctrl *ctrl, int pos)
 {
 	int	i;
 
 	i = 0;
-	while (i < pos && ctrl->forks[i])
+	if (ctrl->forks)
 	{
-		pthread_mutex_destroy(ctrl->forks[i]);
-//		free(ctrl->forks[i]);
-		ctrl->forks[i] = NULL;
+		while (ctrl->forks[i])
+		{
+			if (i < pos)
+				pthread_mutex_destroy(ctrl->forks[i]);
+			free(ctrl->forks[i]);
+			ctrl->forks[i] = NULL;
+			i++;
+		}
+		free(ctrl->forks);
+		ctrl->forks = NULL;
+	}
+	pthread_mutex_destroy(ctrl->m_start);
+	free(ctrl->m_start);
+	pthread_mutex_destroy(ctrl->print);
+	free(ctrl->print);
+}
+
+void	ft_free_array(void ***array)
+{
+	int	i;
+
+	i = 0;
+	while (array[0][i])
+	{
+		if (array[0][i])
+		{
+			free(array[0][i]);
+			array[0][i] = NULL;
+		}
 		i++;
 	}
-//	while (ctrl->forks[i])
-//	{
-//		free(ctrl->forks[i]);
-//		ctrl->forks[i] = NULL;
-//		i++;
-//	}
-}
-
-int	print_msg(char *msg, t_philo *philo)
-{
-	long int	time;
-
-	if (pthread_mutex_lock(philo->ctrl->print))
-		return (1);
-	time = get_time(philo->ctrl->time_start);
-	if (philo->ctrl->start == 1)
-		printf("=== %ld ===	philo %d: %s !\n", time, philo->philo_id, msg);
-	if (pthread_mutex_unlock(philo->ctrl->print))
-		return (1);
-	return (0);
-}
-
-long int	get_time(long int start_time)
-{
-	struct timeval	tmp;
-
-	if (gettimeofday(&tmp, NULL))
-		return (-1);
-	return (((tmp.tv_sec * 1000000 + tmp.tv_usec) / 1000) - start_time);
+	free(*array);
+	*array = NULL;
 }
