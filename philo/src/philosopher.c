@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 12:56:55 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/27 20:22:38 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/27 20:42:38 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,11 +116,9 @@ static int	check_dead(t_ctrl *ctrl, t_philo *philo)
 	if (time - philo->last_meal >= ctrl->time_die)
 	{
 		pthread_mutex_unlock(philo->m_meal);
+		print_msg(ctrl, "died", philo);
 		pthread_mutex_lock(ctrl->m_start);
-		pthread_mutex_lock(ctrl->print);
 		ctrl->start = 0;
-		printf("=== %ld ===	philo %d: died !\n", time, philo->philo_id);
-		pthread_mutex_unlock(ctrl->print);
 		return (1);
 	}
 	pthread_mutex_unlock(philo->m_meal);
@@ -137,19 +135,16 @@ static int	check_eaten(t_ctrl *ctrl, t_philo **philo)
 	eaten = 0;
 	while (++i < ctrl->nbr_philo)
 	{
+		pthread_mutex_lock(philo[i]->m_meal);
 		if (philo[i]->dinner == 0)
 			eaten++;
+		pthread_mutex_unlock(philo[i]->m_meal);
 	}
 	if (eaten == ctrl->nbr_philo)
 	{
-		actual_time = get_time(ctrl, ctrl->time_start);
-		if (actual_time < 0)
-			return (1);
+		print_msg(ctrl, "Everybody has eaten !\n", NULL);
 		pthread_mutex_lock(ctrl->m_start);
-		pthread_mutex_lock(ctrl->print);
 		ctrl->start = 0;
-		printf("=== %ld ===	Everybody has eaten !\n", actual_time);
-		pthread_mutex_unlock(ctrl->print);
 		return (1);
 	}
 	return (0);

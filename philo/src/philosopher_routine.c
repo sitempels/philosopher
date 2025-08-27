@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 16:20:09 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/27 20:19:47 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/27 20:41:09 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,23 +47,23 @@ static int	eating(t_ctrl *ctrl, t_philo *philo)
 	if (print_msg(ctrl, "has taken a fork", philo))
 		return (pthread_mutex_unlock(philo->forks[0]), 1);
 	pthread_mutex_lock(philo->forks[1]);
-	pthread_mutex_lock(philo->m_meal);
-	philo->last_meal = get_time(ctrl, ctrl->time_start);
-	pthread_mutex_unlock(philo->m_meal);
 	if (print_msg(ctrl, "has taken a fork", philo))
 	{
 		pthread_mutex_unlock(philo->forks[0]);
 		pthread_mutex_unlock(philo->forks[1]);
 		return (1);
 	}
+	pthread_mutex_lock(philo->m_meal);
+	philo->last_meal = get_time(ctrl, ctrl->time_start);
+	if (philo->dinner > 0)
+		philo->dinner--;
+	pthread_mutex_unlock(philo->m_meal);
 	if (print_msg(ctrl, "is eating !", philo))
 	{
 		pthread_mutex_unlock(philo->forks[0]);
 		pthread_mutex_unlock(philo->forks[1]);
 		return (1);
 	}
-	if (philo->dinner > 0)
-		philo->dinner--;
 	usleep(1000 * philo->ctrl->time_eat);
 	pthread_mutex_unlock(philo->forks[0]);
 	pthread_mutex_unlock(philo->forks[1]);
@@ -78,8 +78,12 @@ int	print_msg(t_ctrl *ctrl, char *msg, t_philo *philo)
 	if (time < 0)
 		return (1);
 	pthread_mutex_lock(ctrl->print);
+	pthread_mutex_lock(ctrl->m_start);
 	if (ctrl->start == 1)
 		printf("=== %ld ===	philo %d: %s !\n", time, philo->philo_id, msg);
+	pthread_mutex_unlock(ctrl->m_start);
+	if (!philo)
+		printf("=== %ld ===	%s !\n", time, msg);
 	pthread_mutex_unlock(ctrl->print);
 	return (0);
 }
