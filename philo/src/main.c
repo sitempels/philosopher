@@ -6,7 +6,7 @@
 /*   By: stempels <stempels@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 07:21:34 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/26 16:51:19 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/27 11:20:13 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int	main(int argc, char **argv)
 	if (argc < 5 || argc > 6)
 		return (write(2, "Error: wrong number of arguments\n", 32), 1);
 	if (init_ctrl_struct(&ctrl, argc, argv))
-		return (write(2, "Error: wrong argument value", 27), 1);
+		return (1);
 	if (ctrl.nbr_philo == 1)
 	{
 		printf("=== 0 ===	philo 1: took a fork !\n");
@@ -61,7 +61,7 @@ static int	init_ctrl_struct(t_ctrl *ctrl, int argc, char **argv)
 	ctrl->philo = NULL;
 	ctrl->start = 1;
 	if (init_flow_mutex(ctrl))
-		return (1);
+		return (write(2, "Error: flow mutex attribution failed !\n", 39), 1);
 	return (0);
 }
 
@@ -118,7 +118,7 @@ static int	handle_arg(long int *target, char *content)
 
 	i = ft_atol(content);
 	if (!check_ft_atol(i, content))
-		return (1);
+		return (write(2, "Error: wrong argument value", 27), 1);
 	*target = i;
 	return (0);
 }

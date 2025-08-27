@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:22:36 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/26 16:54:17 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/27 11:06:32 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,9 +53,9 @@ void		*philo_routine(void *arg);
 /**/
 /*________________________________UTILS______________________________________*/
 int			check_ft_atol(long int res, char *str);
-int			print_msg(char *msg, t_philo *philo);
+int			print_msg(t_ctrl *ctrl, char *msg, t_philo *philo);
 void		ft_free_array(void ***array);
 void		clean_mutex(t_ctrl *ctrl, int pos);
 long int	ft_atol(const char *str);
-long int	get_time(long int start_time);
+long int	get_time(t_ctrl *ctrl, long int start_time);
 #endif
