@@ -6,7 +6,7 @@
 /*   By: stempels <stempels@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 07:21:34 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/27 11:20:13 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/27 13:50:32 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,7 @@ static int	handle_arg(long int *target, char *content)
 
 	i = ft_atol(content);
 	if (!check_ft_atol(i, content))
-		return (write(2, "Error: wrong argument value", 27), 1);
+		return (1);
 	*target = i;
 	return (0);
 }

@@ -6,7 +6,7 @@
 #    By: user <user@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/14 10:47:36 by stempels          #+#    #+#              #
-#    Updated: 2025/08/26 16:38:05 by stempels         ###   ########.fr        #
+#    Updated: 2025/08/27 16:43:34 by stempels         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,7 +32,7 @@ INC_FLAG = -I$(INC_DIR)
 #----------------------------SRC-----------------------------------------------#
 SRC_DIR = src
 #
-SRCS = main philosopher philosopher_routine philosopher_utils 
+SRCS = main philosopher philosopher_routine philosopher_utils lib_utils 
 #
 SRC = $(addprefix $(SRC_DIR)/, $(addsuffix .c, $(SRCS))) 
 #
@@ -41,7 +41,6 @@ OBJ_DIR = obj
 OBJ = $(patsubst $(SRC_DIR)%.c, $(OBJ_DIR)%.o, $(SRC))
 #
 #----------------------------MISC----------------------------------------------#
-DEPENDS = $(patsubst %.c, %.d, $(SRC))
 #
 #----------------------------RULES---------------------------------------------#
 #
@@ -49,7 +48,7 @@ all: $(NAME)
 #
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c Makefile
 	@mkdir -p $(@D)
-	$(CC) $(CCFLAGS) $(CPPFLAGS) -MMD -MP -c $< -o $@
+	$(CC) $(CCFLAGS) $(CPPFLAGS) -c $< -o $@
 #
 $(NAME): $(OBJ) 
 	$(CC) $(CCFLAGS) $(OBJ) -o $(NAME)
@@ -80,8 +79,6 @@ re: ffclean all
 debug: $(OBJ) 
 	$(CC) $(CCFLAGS) $(OBJ) -o $(NAME)
 	@echo "$(NAME) created !"
-#
--include $(DEPENDS)
 #
 .PHONY: all clean libclean fclean ffclean re
 #----------------------------TEXT----------------------------------------------#

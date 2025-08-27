@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 12:56:55 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/27 11:35:25 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/27 13:11:01 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,11 @@ static int	create_thread(t_ctrl *ctrl, pthread_t ***thread)
 		if (!(*thread)[i])
 			return (1);
 		if (pthread_create((*thread)[i], NULL, philo_routine, ctrl->philo[i]))
+		{
+			free((*thread)[i]);
+			(*thread)[i] = NULL;
 			return (1);
+		}
 		i++;
 	}
 	return (0);
