@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 16:20:09 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/27 13:58:26 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/27 20:19:47 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,9 @@ static int	eating(t_ctrl *ctrl, t_philo *philo)
 	if (print_msg(ctrl, "has taken a fork", philo))
 		return (pthread_mutex_unlock(philo->forks[0]), 1);
 	pthread_mutex_lock(philo->forks[1]);
+	pthread_mutex_lock(philo->m_meal);
 	philo->last_meal = get_time(ctrl, ctrl->time_start);
+	pthread_mutex_unlock(philo->m_meal);
 	if (print_msg(ctrl, "has taken a fork", philo))
 	{
 		pthread_mutex_unlock(philo->forks[0]);

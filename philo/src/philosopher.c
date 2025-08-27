@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 12:56:55 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/27 13:11:01 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/27 20:22:38 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,11 @@ static int	invite_philo(t_ctrl *ctrl, pthread_t ***thread_id)
 		(*philo)->ctrl = ctrl;
 		(*philo)->forks[(i + 1) % 2] = ctrl->forks[(i + 1) % ctrl->nbr_philo];
 		(*philo)->forks[(i + 2) % 2] = ctrl->forks[i];
+		(*philo)->m_meal = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+		if (!(*philo)->m_meal)
+			return (1);
+		if (pthread_mutex_init((*philo)->m_meal, NULL))
+			return (free((*philo)->m_meal), 1);
 		i++;
 	}
 	if (create_thread(ctrl, thread_id))
@@ -107,16 +112,18 @@ static int	check_dead(t_ctrl *ctrl, t_philo *philo)
 	time = get_time(ctrl, ctrl->time_start);
 	if (time < 0)
 		return (1);
-	pthread_mutex_lock(philo->forks[1]);
+	pthread_mutex_lock(philo->m_meal);
 	if (time - philo->last_meal >= ctrl->time_die)
 	{
+		pthread_mutex_unlock(philo->m_meal);
 		pthread_mutex_lock(ctrl->m_start);
+		pthread_mutex_lock(ctrl->print);
 		ctrl->start = 0;
 		printf("=== %ld ===	philo %d: died !\n", time, philo->philo_id);
-		pthread_mutex_unlock(philo->forks[1]);
+		pthread_mutex_unlock(ctrl->print);
 		return (1);
 	}
-	pthread_mutex_unlock(philo->forks[1]);
+	pthread_mutex_unlock(philo->m_meal);
 	return (0);
 }
 
