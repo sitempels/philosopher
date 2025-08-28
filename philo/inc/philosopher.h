@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:22:36 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/27 20:15:01 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/28 08:11:36 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,8 @@ typedef struct s_philo
 	int				dinner;
 	long int		last_meal;
 	struct s_ctrl	*ctrl;
+	pthread_mutex_t	m_meal;
 	pthread_mutex_t	*forks[2];
-	pthread_mutex_t	*m_meal;
 }				t_philo;
 
 typedef struct s_ctrl
@@ -38,14 +38,14 @@ typedef struct s_ctrl
 	int					nbr_philo;
 	int					nbr_dinner;
 	int					start;
+	int					time_die;
+	int					time_eat;
+	int					time_sleep;
 	long int			time_start;
-	long int			time_die;
-	long int			time_eat;
-	long int			time_sleep;
-	t_philo				**philo;
-	pthread_mutex_t		*m_start;
-	pthread_mutex_t		*print;
-	pthread_mutex_t		**forks;
+	t_philo				*philo;
+	pthread_mutex_t		m_start;
+	pthread_mutex_t		m_print;
+	pthread_mutex_t		*forks;
 }						t_ctrl;
 /**/
 /*________________________________PHILO______________________________________*/
@@ -53,10 +53,9 @@ int			philosopher(t_ctrl *ctrl);
 void		*philo_routine(void *arg);
 /**/
 /*________________________________UTILS______________________________________*/
-int			check_ft_atol(long int res, char *str);
+int			ft_atoi(const char *str);
+int			check_ft_atoi(int res, char *str);
 int			print_msg(t_ctrl *ctrl, char *msg, t_philo *philo);
-void		ft_free_array(void ***array);
 void		clean_mutex(t_ctrl *ctrl, int pos);
-long int	ft_atol(const char *str);
 long int	get_time(t_ctrl *ctrl, long int start_time);
 #endif
