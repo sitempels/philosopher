@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 12:46:31 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/28 07:44:48 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/28 11:19:29 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@ static int	ft_isspace(char c);
 
 int	ft_atoi(const char *str)
 {
-	size_t			i;
-	int				sign;
+	size_t		i;
+	int			sign;
 	long int	res;
 
 	i = 0;

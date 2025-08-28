@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 16:20:09 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/28 08:49:30 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/28 11:19:49 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 static int	eating(t_ctrl *ctrl, t_philo *philo);
 static int	do_usleep(t_ctrl *ctrl, int sleep);
 
-void	*philo_routine(void *arg)
+void	*rout(void *arg)
 {
 	int			think;
 	t_ctrl		*ctrl;
@@ -63,7 +63,7 @@ static int	eating(t_ctrl *ctrl, t_philo *philo)
 	if (philo->dinner > 0)
 		philo->dinner--;
 	pthread_mutex_unlock(&philo->m_meal);
-	status = print_msg(ctrl, "is eating !", philo);
+	status = print_msg(ctrl, "is eating", philo);
 	if (status == 0)
 		status = do_usleep(ctrl, ctrl->time_eat * 1000);
 	pthread_mutex_unlock(philo->forks[0]);

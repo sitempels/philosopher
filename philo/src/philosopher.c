@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 12:56:55 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/28 09:52:34 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/28 11:18:24 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,8 +85,11 @@ static int	create_thread(t_ctrl *ctrl, pthread_t **thread)
 	i = 0;
 	while (i < ctrl->nbr_philo)
 	{
-		if (pthread_create(&(*thread)[i], NULL, philo_routine, (void *)&ctrl->philo[i]))
+		if (pthread_create(&(*thread)[i], NULL, rout, (void *)&ctrl->philo[i]))
+		{
+			(*thread)[i] = 0;
 			return (1);
+		}
 		i++;
 	}
 	return (0);

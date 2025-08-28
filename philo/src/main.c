@@ -6,7 +6,7 @@
 /*   By: stempels <stempels@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 07:21:34 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/28 10:30:05 by stempels         ###   ########.fr       */
+/*   Updated: 2025/08/28 11:00:46 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ int	main(int argc, char **argv)
 	if (ctrl.nbr_philo == 1)
 	{
 		printf("=== 0 ===	philo 1: took a fork !\n");
-		usleep(ctrl.time_die);
+		usleep(ctrl.time_die * 1000);
 		printf("=== %d ===	philo 1: died !\n", ctrl.time_die);
 		return (0);
 	}
