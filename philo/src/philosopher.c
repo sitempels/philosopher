@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 12:56:55 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/28 11:18:24 by stempels         ###   ########.fr       */
+/*   Updated: 2025/09/01 06:29:42 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ int	philosopher(t_ctrl *ctrl)
 	{
 		pthread_mutex_unlock(&ctrl->m_start);
 		if (check_dead(ctrl, &ctrl->philo[i])
-			|| (ctrl->nbr_dinner > 0 && check_eaten(ctrl, &ctrl->philo[i])))
+			|| (ctrl->nbr_dinner > 0 && check_eaten(ctrl, ctrl->philo)))
 			break ;
 		if (++i == ctrl->nbr_philo - 1)
 			i = 0;

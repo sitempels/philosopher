@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 16:20:09 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/28 11:19:49 by stempels         ###   ########.fr       */
+/*   Updated: 2025/09/01 06:19:10 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,10 +60,12 @@ static int	eating(t_ctrl *ctrl, t_philo *philo)
 	}
 	pthread_mutex_lock(&philo->m_meal);
 	philo->last_meal = get_time(ctrl, ctrl->time_start);
+	pthread_mutex_unlock(&philo->m_meal);
+	status = print_msg(ctrl, "is eating", philo);
+	pthread_mutex_lock(&philo->m_meal);
 	if (philo->dinner > 0)
 		philo->dinner--;
 	pthread_mutex_unlock(&philo->m_meal);
-	status = print_msg(ctrl, "is eating", philo);
 	if (status == 0)
 		status = do_usleep(ctrl, ctrl->time_eat * 1000);
 	pthread_mutex_unlock(philo->forks[0]);
