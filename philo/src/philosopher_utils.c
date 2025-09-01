@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/14 09:36:22 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/28 10:51:58 by stempels         ###   ########.fr       */
+/*   Updated: 2025/09/01 09:58:40 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,10 +41,10 @@ int	print_msg(t_ctrl *ctrl, char *msg, t_philo *philo)
 	pthread_mutex_lock(&ctrl->m_print);
 	pthread_mutex_lock(&ctrl->m_start);
 	if (ctrl->start == 1 && philo)
-		printf("%d	philo %d: %s\n", time, philo->philo_id, msg);
+		printf("%d	%d %s\n", time, philo->philo_id, msg);
 	pthread_mutex_unlock(&ctrl->m_start);
 	if (!philo)
-		printf("%d	%s !\n", time, msg);
+		printf("%d	%s\n", time, msg);
 	pthread_mutex_unlock(&ctrl->m_print);
 	return (0);
 }

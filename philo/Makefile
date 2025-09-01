@@ -6,7 +6,7 @@
 #    By: user <user@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/14 10:47:36 by stempels          #+#    #+#              #
-#    Updated: 2025/08/28 10:48:52 by stempels         ###   ########.fr        #
+#    Updated: 2025/09/01 10:13:54 by stempels         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -46,7 +46,7 @@ OBJ = $(patsubst $(SRC_DIR)%.c, $(OBJ_DIR)%.o, $(SRC))
 #
 all: $(NAME)
 #
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c Makefile
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c 
 	@mkdir -p $(@D)
 	$(CC) $(CCFLAGS) $(CPPFLAGS) -c $< -o $@
 #
@@ -57,12 +57,6 @@ $(NAME): $(OBJ)
 run: $(NAME)
 	@./$(NAME)
 #
-leak: debug
-	@valgrind --leak-check=full --show-leak-kinds=all --trace-children=yes --track-origins=yes --track-fds=yes ./debug_$(NAME_PROJECT)
-#
-vgdb: debug
-	@valgrind --vgdb-error=0 --leak-check=full --show-leak-kinds=all --track-fds=yes ./debug_$(NAME_PROJECT)
-#
 clean:
 	rm -rf $(OBJ_DIR) $(DEPENDS)
 	@echo "$(NAME) $(GREEN)$@ed !$(NC)"
@@ -72,15 +66,13 @@ fclean: clean
 	rm -rf $(addprefix debug_, $(NAME))
 	@echo "$(NAME) $(GREEN)$@ed !$(NC)"
 #
-ffclean: fclean
-#
-re: ffclean all
+re: fclean all
 #
 debug: $(OBJ) 
 	$(CC) $(CCFLAGS) $(OBJ) -o $(NAME)
 	@echo "$(NAME) created !"
 #
-.PHONY: all clean libclean fclean ffclean re
+.PHONY: all clean libclean fclean re
 #----------------------------TEXT----------------------------------------------#
 
 #

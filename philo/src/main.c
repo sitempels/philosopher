@@ -6,7 +6,7 @@
 /*   By: stempels <stempels@student.s19.be>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 07:21:34 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/28 11:00:46 by stempels         ###   ########.fr       */
+/*   Updated: 2025/09/01 09:58:15 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,13 @@ int	main(int argc, char **argv)
 		return (write(2, "Error: wrong number of arguments\n", 32), 1);
 	if (init_ctrl_struct(&ctrl, argc, argv))
 		return (1);
+	if (ctrl.nbr_philo == 0)
+		return (write(2, "Error: at least one philosopher needed\n", 39), 1);
 	if (ctrl.nbr_philo == 1)
 	{
-		printf("=== 0 ===	philo 1: took a fork !\n");
+		printf("0	1 took a fork !\n");
 		usleep(ctrl.time_die * 1000);
-		printf("=== %d ===	philo 1: died !\n", ctrl.time_die);
+		printf("%d	1 died !\n", ctrl.time_die);
 		return (0);
 	}
 	if (set_table(&ctrl))
