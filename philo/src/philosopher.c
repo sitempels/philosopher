@@ -106,9 +106,14 @@ static int	check_dead(t_ctrl *ctrl, t_philo *philo)
 	if (time - philo->last_meal >= ctrl->time_die)
 	{
 		pthread_mutex_unlock(&philo->m_meal);
-		print_msg(ctrl, "died", philo);
 		pthread_mutex_lock(&ctrl->m_start);
+		pthread_mutex_lock(&ctrl->m_print);
+		time = get_time(ctrl, ctrl->time_start);
+		if (time < 0)
+			return (1);
+		printf("%ld	%d died\n", time, philo->philo_id);
 		ctrl->start = 0;
+		pthread_mutex_unlock(&ctrl->m_print);
 		return (1);
 	}
 	pthread_mutex_unlock(&philo->m_meal);

@@ -22,7 +22,7 @@ int	main(int argc, char **argv)
 	t_ctrl	ctrl;
 
 	if (argc < 5 || argc > 6)
-		return (write(2, "Error: wrong number of arguments\n", 32), 1);
+		return (write(2, "Error: wrong number of arguments\n", 33), 1);
 	if (init_ctrl_struct(&ctrl, argc, argv))
 		return (1);
 	if (ctrl.nbr_philo == 0)
