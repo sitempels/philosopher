@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 12:56:55 by stempels          #+#    #+#             */
-/*   Updated: 2025/09/01 06:29:42 by stempels         ###   ########.fr       */
+/*   Updated: 2025/09/03 10:46:48 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,7 @@ int	philosopher(t_ctrl *ctrl)
 	pthread_mutex_lock(&ctrl->m_start);
 	if (invite_philo(ctrl, &thread_id))
 		return (1);
-	ctrl->time_start = get_time(ctrl, 0);
-	if (ctrl->time_start < 0)
+	if (get_time(ctrl, &ctrl->time_start, 0, 0))
 		ctrl->start = 0;
 	i = 0;
 	while (ctrl->start == 1)
@@ -99,17 +98,15 @@ static int	check_dead(t_ctrl *ctrl, t_philo *philo)
 {
 	long int	time;
 
-	time = get_time(ctrl, ctrl->time_start);
-	if (time < 0)
+	if (get_time(ctrl, &time, ctrl->time_start, 0))
 		return (1);
 	pthread_mutex_lock(&philo->m_meal);
 	if (time - philo->last_meal >= ctrl->time_die)
 	{
 		pthread_mutex_unlock(&philo->m_meal);
-		pthread_mutex_lock(&ctrl->m_start);
 		pthread_mutex_lock(&ctrl->m_print);
-		time = get_time(ctrl, ctrl->time_start);
-		if (time < 0)
+		pthread_mutex_lock(&ctrl->m_start);
+		if (get_time(ctrl, &time, ctrl->time_start, 1))
 			return (1);
 		printf("%ld	%d died\n", time, philo->philo_id);
 		ctrl->start = 0;
@@ -124,22 +121,26 @@ static int	check_eaten(t_ctrl *ctrl, t_philo *philo)
 {
 	int			i;
 	int			eaten;
+	long int	time;
 
-	i = 0;
+	i = -1;
 	eaten = 0;
-	while (i < ctrl->nbr_philo)
+	while (++i < ctrl->nbr_philo)
 	{
 		pthread_mutex_lock(&philo[i].m_meal);
 		if (philo[i].dinner == 0)
 			eaten++;
 		pthread_mutex_unlock(&philo[i].m_meal);
-		i++;
 	}
 	if (eaten == ctrl->nbr_philo)
 	{
-		print_msg(ctrl, "Everybody has eaten", NULL);
+		pthread_mutex_lock(&ctrl->m_print);
 		pthread_mutex_lock(&ctrl->m_start);
+		if (get_time(ctrl, &time, ctrl->time_start, 1))
+			return (1);
+		printf("%ld	ctrl: Everybody has eaten\n", time);
 		ctrl->start = 0;
+		pthread_mutex_unlock(&ctrl->m_print);
 		return (1);
 	}
 	return (0);

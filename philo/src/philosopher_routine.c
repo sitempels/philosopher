@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/26 16:20:09 by stempels          #+#    #+#             */
-/*   Updated: 2025/09/01 06:19:10 by stempels         ###   ########.fr       */
+/*   Updated: 2025/09/03 11:04:14 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 static int	eating(t_ctrl *ctrl, t_philo *philo);
 static int	do_usleep(t_ctrl *ctrl, int sleep);
+static void	unlock_forks(t_philo *philo, int unlock_to);
 
 void	*rout(void *arg)
 {
@@ -50,16 +51,13 @@ static int	eating(t_ctrl *ctrl, t_philo *philo)
 
 	pthread_mutex_lock(philo->forks[0]);
 	if (print_msg(ctrl, "has taken a fork", philo))
-		return (pthread_mutex_unlock(philo->forks[0]), 1);
+		return (unlock_forks(philo, 0), 1);
 	pthread_mutex_lock(philo->forks[1]);
 	if (print_msg(ctrl, "has taken a fork", philo))
-	{
-		pthread_mutex_unlock(philo->forks[0]);
-		pthread_mutex_unlock(philo->forks[1]);
-		return (1);
-	}
+		return (unlock_forks(philo, 1), 1);
 	pthread_mutex_lock(&philo->m_meal);
-	philo->last_meal = get_time(ctrl, ctrl->time_start);
+	if (get_time(ctrl, &philo->last_meal, ctrl->time_start, 0))
+		return (unlock_forks(philo, 1), 1);
 	pthread_mutex_unlock(&philo->m_meal);
 	status = print_msg(ctrl, "is eating", philo);
 	pthread_mutex_lock(&philo->m_meal);
@@ -68,8 +66,7 @@ static int	eating(t_ctrl *ctrl, t_philo *philo)
 	pthread_mutex_unlock(&philo->m_meal);
 	if (status == 0)
 		status = do_usleep(ctrl, ctrl->time_eat * 1000);
-	pthread_mutex_unlock(philo->forks[0]);
-	pthread_mutex_unlock(philo->forks[1]);
+	unlock_forks(philo, 1);
 	return (status);
 }
 
@@ -96,4 +93,35 @@ static int	do_usleep(t_ctrl *ctrl, int sleep)
 	}
 	pthread_mutex_unlock(&ctrl->m_start);
 	return (1);
+}
+
+static void	unlock_forks(t_philo *philo, int unlock_to)
+{
+	int	i;
+
+	i = 0;
+	while (i < unlock_to + 1)
+	{
+		pthread_mutex_unlock(philo->forks[i]);
+		i++;
+	}
+}
+
+void	clean_mutex(t_ctrl *ctrl, int pos)
+{
+	int	i;
+
+	i = 0;
+	if (ctrl->forks)
+	{
+		while (i < pos)
+		{
+			pthread_mutex_destroy(&ctrl->forks[i]);
+			i++;
+		}
+		free(ctrl->forks);
+		ctrl->forks = NULL;
+	}
+	pthread_mutex_destroy(&ctrl->m_start);
+	pthread_mutex_destroy(&ctrl->m_print);
 }

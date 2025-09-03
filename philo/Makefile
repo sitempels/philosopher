@@ -6,7 +6,7 @@
 #    By: user <user@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/14 10:47:36 by stempels          #+#    #+#              #
-#    Updated: 2025/09/01 10:13:54 by stempels         ###   ########.fr        #
+#    Updated: 2025/09/03 11:05:37 by stempels         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,7 +32,7 @@ INC_FLAG = -I$(INC_DIR)
 #----------------------------SRC-----------------------------------------------#
 SRC_DIR = src
 #
-SRCS = main philosopher philosopher_routine philosopher_utils lib_utils 
+SRCS = main philosopher philosopher_routine philosopher_utils
 #
 SRC = $(addprefix $(SRC_DIR)/, $(addsuffix .c, $(SRCS))) 
 #

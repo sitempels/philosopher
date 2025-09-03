@@ -6,7 +6,7 @@
 /*   By: stempels <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 13:22:36 by stempels          #+#    #+#             */
-/*   Updated: 2025/08/28 11:18:54 by stempels         ###   ########.fr       */
+/*   Updated: 2025/09/03 11:04:42 by stempels         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ void		*rout(void *arg);
 /*________________________________UTILS______________________________________*/
 int			ft_atoi(const char *str);
 int			check_ft_atoi(int res, char *str);
+int			get_time(t_ctrl *ctrl, long *time, long int start, int unlock);
 int			print_msg(t_ctrl *ctrl, char *msg, t_philo *philo);
 void		clean_mutex(t_ctrl *ctrl, int pos);
-long int	get_time(t_ctrl *ctrl, long int start_time);
 #endif
