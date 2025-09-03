@@ -6,7 +6,7 @@
 #    By: user <user@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/14 10:47:36 by stempels          #+#    #+#              #
-#    Updated: 2025/09/03 11:05:37 by stempels         ###   ########.fr        #
+#    Updated: 2025/09/03 11:30:45 by stempels         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ TYPE = EXEC
 CC = cc
 debug: CC = gcc 
 CCFLAGS = -Wall -Wextra -Werror
-debug: CCFLAGS = -g3 -fsanitize=thread
+debug: CCFLAGS = -g3
 CPPFLAGS = $(INC_FLAG)
 #
 #----------------------------LINKER--------------------------------------------#
